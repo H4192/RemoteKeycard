@@ -20,8 +20,8 @@ Command | Description
 rpc_disable | The command to disable this plugin
 rpc_reload | Reboot plugin configuration (To avoid in order issues a invalid reboot, reboot the basic server configuration with `config r` command)
 
-## Permission
 **!!Only for the plugin version that supports this feature!!**
+## Permission
 Permission Name | Permission Description
 :---: | -----
 remotepermissioncard.reload | The possibility of using `rpc_reload`
