@@ -9,7 +9,7 @@ RemotePermissionCard created to open doors without holding a card, but having in
 ## Configuration
 Config Option | Value Type | Default Value | Description
 :---: | :---: | :---: | ---
-rpc_cards | CList | 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | List of cards that will open the door (Please see the below list to understand)
+rpc_cards | [CList](https://github.com/iRebbok/RemotePermissionCard/blob/master/README.md#clist-card-list) | 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | List of cards that will open the door (Please see the below list to understand)
 rpc_disable | Bool | false | Disabling the plugin at server startup
 rpc_info | Bool | true | Information about the player use of the card in the inventory
 rpc_debug | Bool | false | Detailed information about using the plugin
