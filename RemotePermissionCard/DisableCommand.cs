@@ -10,7 +10,7 @@ namespace RemotePermissionCard
 
         public string GetCommandDescription()
         {
-            return "Disable this pluign";
+            return "Disabling this plugin";
         }
 
         public string GetUsage()
@@ -32,7 +32,7 @@ namespace RemotePermissionCard
             }
 
             PluginManager.Manager.DisablePlugin(plugin);
-            return new string[] { "RemotePermissionCard disabled." };
+            return new string[] { "RemotePermissionCard disable." };
         }
     }
 }
