@@ -8,7 +8,7 @@ namespace RemotePermissionCard
         name = "RemotePermissionCard",
         id = "irebbok.remote.permission.card",
         description = "Using the card remotely",
-        version = "1.0.0",
+        version = "1.1.0",
         SmodMajor = 3,
         SmodMinor = 4,
         SmodRevision = 1)]
