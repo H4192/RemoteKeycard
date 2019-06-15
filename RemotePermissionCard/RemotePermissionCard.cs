@@ -32,7 +32,7 @@ namespace RemotePermissionCard
             this.AddCommands(new string[] { "rpc_reload" }, new ReloadCommand(this));
             this.AddCommands(new string[] { "rpc_list" }, new ListCommand(this));
             this.AddConfig(new Smod2.Config.ConfigSetting("rpc_cards", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", true, "CList settings"));
-            this.AddConfig(new Smod2.Config.ConfigSetting("rpc_door_access", string.Empty, true, "Customized permissions to open the door"));
+            this.AddConfig(new Smod2.Config.ConfigSetting("rpc_card_access", string.Empty, true, "Customized permissions to open the door"));
             this.AddConfig(new Smod2.Config.ConfigSetting("rpc_permission", false, true, "Permission mode"));
             this.AddConfig(new Smod2.Config.ConfigSetting("rpc_disable", false, true, "Disable this pluign"));
             this.AddConfig(new Smod2.Config.ConfigSetting("rpc_info", true, true, "Usage information"));

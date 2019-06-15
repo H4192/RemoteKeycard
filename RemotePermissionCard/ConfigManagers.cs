@@ -63,7 +63,7 @@ namespace RemotePermissionCard
             RPCInfo = plugin.GetConfigBool("rpc_info");
             RPCPermissionMode = plugin.GetConfigBool("rpc_permission");
 
-            string cardsPerm = plugin.GetConfigString("rpc_door_access");
+            string cardsPerm = plugin.GetConfigString("rpc_card_access");
             string cards = plugin.GetConfigString("rpc_cards");
             foreach (string card in cards.Split(','))
             {
