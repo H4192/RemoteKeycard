@@ -249,7 +249,10 @@ namespace RemotePermissionCard
                 {
                     if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                        if (ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
+                        {
+                            if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                        }
                         else
                         {
                             if (ConfigManagers.RPCRemote)
@@ -321,29 +324,29 @@ namespace RemotePermissionCard
                 }
                 else if (ConfigManagers.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name) && ConfigManagers.DefaultDoorList.ContainsKey(ev.Door.Name))
+                    if (ConfigManagers.DefaultDoorList.ContainsKey(ev.Door.Name) && ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
                         if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(CardID) && ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
-                        else ev.Allow = false;
-                    }
-                    else
-                    {
-                        if (ConfigManagers.RPCRemote)
+                        else
                         {
-                            bool Really = false;
-                            for (int h = 0; h < 12; h++)
+                            if (ConfigManagers.RPCRemote)
                             {
-                                if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(h) && ConfigManagers.DefaultCardAccess[h].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                bool Really = false;
+                                for (int h = 0; h < 12; h++)
                                 {
-                                    Really = true;
-                                    ev.Allow = true;
-                                    break;
+                                    if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(h) && ConfigManagers.DefaultCardAccess[h].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                    {
+                                        Really = true;
+                                        ev.Allow = true;
+                                        break;
+                                    }
                                 }
+                                if (!Really) ev.Allow = false;
                             }
-                            if (!Really) ev.Allow = false;
+                            else ev.Allow = false;
                         }
-                        else ev.Allow = false;
                     }
+                    else ev.Allow = true;
                 }
                 else ev.Allow = false;
             }
@@ -390,35 +393,39 @@ namespace RemotePermissionCard
                 }
                 else if (ConfigManagers.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name) && ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
+                    if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
-                        else
+                        if (ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
                         {
-                            if (ConfigManagers.RPCRemote)
+                            if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                            else
                             {
-                                bool Really = false;
-                                for (int t = 0; t < 12; t++)
+                                if (ConfigManagers.RPCRemote)
                                 {
-                                    ItemInt CurrentItem = (ItemInt)t;
-                                    ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
-
-                                    if (ev.Player.HasItem(ResultItem))
+                                    bool Really = false;
+                                    for (int t = 0; t < 12; t++)
                                     {
-                                        if (ConfigManagers.DefaultCardAccess[t].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                        ItemInt CurrentItem = (ItemInt)t;
+                                        ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
+
+                                        if (ev.Player.HasItem(ResultItem))
                                         {
-                                            Really = true;
-                                            ev.Allow = true;
-                                            break;
+                                            if (ConfigManagers.DefaultCardAccess[t].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                            {
+                                                Really = true;
+                                                ev.Allow = true;
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (!Really) ev.Allow = false;
                                 }
-                                if (!Really) ev.Allow = false;
+                                else ev.Allow = false;
                             }
-                            else ev.Allow = false;
                         }
+                        else ev.Allow = false;
                     }
-                    else ev.Allow = false;
+                    else ev.Allow = true;
                 }
                 else ev.Allow = false;
             }
