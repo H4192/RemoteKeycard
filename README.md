@@ -1,6 +1,5 @@
 # RemotePermissionCard
-RemotePermissionCard created to open doors without holding a card, but having in your inventory.
-
+RemotePermissionCard allows you to customize the door as you like. He also knows how to open the door remotely.
 ## Installation
 **For the plugin to work, you must have a working [Smod](https://github.com/Grover-c13/Smod2)**
 1. Take the [latest version](https://github.com/iRebbok/RemotePermissionCard/releases/latest) of the plugin.
