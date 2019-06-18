@@ -47,7 +47,7 @@
     <Compile Include="ConfigManagers.cs" />
     <Compile Include="DisableCommand.cs" />
     <Compile Include="EventHandlers.cs" />
-    <Compile Include="ListCommand.cs" />
+    <Compile Include="LogicManager.cs" />
     <Compile Include="ReloadCommand.cs" />
     <Compile Include="RemotePermissionCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

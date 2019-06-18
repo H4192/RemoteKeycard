@@ -1,8 +1,6 @@
 ﻿using Smod2;
-using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
-using System;
 
 namespace RemotePermissionCard
 {
@@ -14,38 +12,15 @@ namespace RemotePermissionCard
 
         public void OnDoorAccess(PlayerDoorAccessEvent ev)
         {
-            if (ev.Door.Destroyed == false && ev.Door.BlockAfterWarheadDetonation == false && ev.Player.GetInventory().Count > 0 && ev.Door.Locked == false && ev.Door.Permission != String.Empty && ev.Player.TeamRole.Team != Team.SCP && ev.Allow == false)
+            if (ev.Player.TeamRole.Team != Smod2.API.Team.SCP && !ev.Player.GetBypassMode())
             {
-                if (ConfigManagers.RPCDebug) plugin.Info($"Door perm: {ev.Door.Permission}");
-                for(int z = 0; z < 12; z++)
-                {
-                    if (ConfigManagers.Keycardperm.ContainsKey(z))
-                    {
-                        ItemType item = ConfigManagers.keycards[z];
-                        if (ConfigManagers.RPCDebug) plugin.Info($"Check has item: '{item}'");
-                        if (ev.Player.HasItem(item))
-                        {
-                            if (ConfigManagers.RPCDebug) plugin.Info($"Successfully found item: '{item}' on number: '{z}'");
-                            if (ConfigManagers.Keycardperm.ContainsKey(z))
-                            {
-                                string[] perms = ConfigManagers.Keycardperm[z].Split(',');
-                                foreach (string perm in perms)
-                                {
-                                    if (ConfigManagers.RPCDebug) plugin.Info($"Check {perm} permission...");
-                                    if (ev.Door.Permission == perm)
-                                    {
-                                        ev.Allow = true;
-                                        if (ConfigManagers.RPCDebug) plugin.Info($"Successfully on {perm} permission!");
-                                        if (ConfigManagers.RPCInfo) plugin.Info($"Player {ev.Player.Name} open the door '{ev.Door.Name}' with the help '{item}' thanks to permission '{perm}'.");
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                if (ConfigManagers.RPCMode == 1) LogicManager.LogicOneRemote(plugin, ev);
+                else if (ConfigManagers.RPCMode == 2) LogicManager.LogicTwo(plugin, ev);
+                else if (ConfigManagers.RPCMode == 3) LogicManager.LogicTree(plugin, ev);
+                else if (ConfigManagers.RPCMode == 4) LogicManager.LogicFour(plugin, ev);
+                else if (ConfigManagers.RPCMode == 5) LogicManager.LogicFive(plugin, ev);
+                else if (ConfigManagers.RPCMode == 6) LogicManager.LogicSix(plugin, ev);
             }
-
         }
 
         public void OnWaitingForPlayers(WaitingForPlayersEvent ev)

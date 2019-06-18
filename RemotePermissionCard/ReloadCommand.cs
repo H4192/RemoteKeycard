@@ -29,8 +29,6 @@ namespace RemotePermissionCard
                     }
                 }
             }
-
-            ConfigManagers.cardlist.Clear();
             ConfigManagers.ReloadConfig(plugin);
             return new string[] { "The configuration was successfully reloaded." };
         }
