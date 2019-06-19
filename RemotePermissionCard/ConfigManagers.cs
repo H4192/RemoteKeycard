@@ -178,10 +178,7 @@ namespace RemotePermissionCard
             RPCMode = plugin.GetConfigInt("rpc_mode");
             RPCDefaultIfNone = plugin.GetConfigBool("rpc_default_if_none");
 
-            CustomCardAccess.Clear();
-            CustomDoorAccess.Clear();
-            CustomDoorList.Clear();
-            CardsList.Clear();
+            ClearingData();
 
             if (RPCMode > 0 && RPCMode < 7) plugin.Info($"Successfully loaded mode {RPCModes[RPCMode]}");
             else
@@ -190,44 +187,45 @@ namespace RemotePermissionCard
                 RPCMode = 1;
             }
 
-            if (RPCMode == 1) LoadRemote();
+            if (RPCMode == 1) LoadRemote(plugin);
             else if (RPCMode == 2) LoadConfigModeOne(plugin);
             else if (RPCMode == 3) LoadConfigModeTwo(plugin);
             else if (RPCMode == 4) LoadConfigModeTree(plugin);
             else if (RPCMode == 5) LoadConfigModeFour(plugin);
             else if (RPCMode == 6) LoadConfigModeFive(plugin);
             else plugin.Warn("MODE2: Error recognizing the current work mode, contact the developer");
+        }
 
-            void LoadRemote()
+        public static void LoadRemote(RemotePermissionCard plugin)
+        {
+            if (RPCRemote)
             {
-                if (RPCRemote)
+                string CardList = plugin.GetConfigString("rpc_card_list");
+                string[] Cards = CardList.Split(',');
+
+                if (Cards[0].Trim() != string.Empty)
                 {
-                    string CardList = plugin.GetConfigString("rpc_card_list");
-                    string[] Cards = CardList.Split(',');
-
-                    if (Cards[0].Trim() != string.Empty)
+                    for (int x = 0; x < Cards.Length; x++)
                     {
-                        for (int x = 0; x < Cards.Length; x++)
-                        {
-                            int CardID = int.TryParse(Cards[x], out int z) ? z : -1;
+                        int CardID = int.TryParse(Cards[x], out int z) ? z : -1;
 
-                            if (CardID >= 0 && CardID <= 11)
-                            {
-                                if (!CardsList.Contains(CardID)) CardsList.Add(CardID);
-                                else plugin.Warn($"REMOTE4: Duplicate value '{CardID}' in CardsList");
-                            }
-                            else plugin.Warn($"REMOTE3: Incorrect value '{Cards[x]}'");
+                        if (CardID >= 0 && CardID <= 11)
+                        {
+                            if (!CardsList.Contains(CardID)) CardsList.Add(CardID);
+                            else plugin.Warn($"REMOTE4: Duplicate value '{CardID}' in CardsList");
                         }
+                        else plugin.Warn($"REMOTE3: Incorrect value '{Cards[x]}'");
                     }
-                    else plugin.Warn("REMOTE2: Incorrect format");
                 }
-                else plugin.Warn("REMOTE1: Value 'rpc_remote' installed on 'false'. I don't know why he's working now ¯\\_(ツ)_/¯");
+                else plugin.Warn("REMOTE2: Incorrect format");
             }
+            else if (RPCMode == 1) plugin.Warn("REMOTE1: Value 'rpc_remote' installed on 'false'. I don't know why he's working now ¯\\_(ツ)_/¯");
         }
 
         // Custom Access Card
         public static void LoadConfigModeOne(RemotePermissionCard plugin)
         {
+            LoadRemote(plugin);
             string ConfigCCA = plugin.GetConfigString("rpc_card_access");
 
             if (ConfigCCA != string.Empty)
@@ -281,6 +279,7 @@ namespace RemotePermissionCard
         // Door List
         public static void LoadConfigModeTwo(RemotePermissionCard plugin)
         {
+            LoadRemote(plugin);
             string ConfigDL = plugin.GetConfigString("rpc_door_list");
 
             if (ConfigDL.Trim() != string.Empty)
@@ -336,6 +335,7 @@ namespace RemotePermissionCard
         // Door Access
         public static void LoadConfigModeTree(RemotePermissionCard plugin)
         {
+            LoadRemote(plugin);
             string ConfigDA = plugin.GetConfigString("rpc_door_access");
 
             if (ConfigDA.Trim() != string.Empty)
@@ -383,6 +383,7 @@ namespace RemotePermissionCard
         // Door List + Door Access
         public static void LoadConfigModeFour(RemotePermissionCard plugin)
         {
+            LoadRemote(plugin);
             LoadConfigModeTwo(plugin);
             LoadConfigModeFour(plugin);
             // ¯\_(ツ)_/¯
@@ -391,9 +392,18 @@ namespace RemotePermissionCard
         // Custom Access Card + Door Access
         public static void LoadConfigModeFive(RemotePermissionCard plugin)
         {
+            LoadRemote(plugin);
             LoadConfigModeOne(plugin);
             LoadConfigModeTree(plugin);
             // ¯\_(ツ)_/¯ x2
+        }
+
+        public static void ClearingData()
+        {
+            CardsList.Clear();
+            CustomCardAccess.Clear();
+            CustomDoorAccess.Clear();
+            CustomDoorList.Clear();
         }
     }
 }
