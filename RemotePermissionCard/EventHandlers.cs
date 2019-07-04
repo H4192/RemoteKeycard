@@ -4,11 +4,10 @@ using Smod2.Events;
 
 namespace RemotePermissionCard
 {
-    internal class EventHandlers : IEventHandler, IEventHandlerDoorAccess, IEventHandlerWaitingForPlayers
+    internal class EventHandlers : IEventHandlerDoorAccess, IEventHandlerWaitingForPlayers
     {
-        private RemotePermissionCard plugin;
+        private readonly RemotePermissionCard plugin;
         public EventHandlers(RemotePermissionCard plugin) => this.plugin = plugin;
-
 
         public void OnDoorAccess(PlayerDoorAccessEvent ev)
         {
@@ -25,7 +24,7 @@ namespace RemotePermissionCard
 
         public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
         {
-            if (plugin.GetConfigBool("rpc_disable")) PluginManager.Manager.DisablePlugin(plugin);
+            if (ConfigFile.GetBool("rpc_disable", false)) PluginManager.Manager.DisablePlugin(plugin);
         }
     }
 }

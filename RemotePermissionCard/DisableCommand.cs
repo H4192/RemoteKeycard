@@ -5,7 +5,7 @@ namespace RemotePermissionCard
 {
     internal class DisableCommand : ICommandHandler
     {
-        private RemotePermissionCard plugin;
+        private readonly RemotePermissionCard plugin;
         public DisableCommand(RemotePermissionCard plugin) => this.plugin = plugin;
 
         public string GetCommandDescription()

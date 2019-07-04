@@ -1,4 +1,5 @@
 ﻿using Smod2.API;
+using Smod2.Config;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,12 +25,11 @@ namespace RemotePermissionCard
 
     public class ConfigManagers
     {
-        public static bool RPCDebug;
-        public static bool RPCInfo;
-        public static bool RPCPermissionMode;
-        public static bool RPCRemote;
+        [ConfigOption("info")] public static bool RPCInfo = true;
+        [ConfigOption("permission")] public static bool RPCPermissionMode = false;
+        [ConfigOption("remote")] public static bool RPCRemote = true;
+        [ConfigOption("default_if_none")] public static bool RPCDefaultIfNone;
         public static int RPCMode;
-        public static bool RPCDefaultIfNone;
 
         // Readonly  
         private static readonly List<string> DoorPerms = new List<string>()
@@ -168,24 +168,18 @@ namespace RemotePermissionCard
         public static Dictionary<string, string> CustomDoorAccess = new Dictionary<string, string>();
         public static Dictionary<string, CList> CustomDoorList = new Dictionary<string, CList>();
 
-
         public static void ReloadConfig(RemotePermissionCard plugin)
         {
-            RPCDebug = plugin.GetConfigBool("rpc_debug");
-            RPCInfo = plugin.GetConfigBool("rpc_info");
-            RPCPermissionMode = plugin.GetConfigBool("rpc_permission");
-            RPCRemote = plugin.GetConfigBool("rpc_remote");
-            RPCMode = plugin.GetConfigInt("rpc_mode");
-            RPCDefaultIfNone = plugin.GetConfigBool("rpc_default_if_none");
+            int CONFIG_MODE = ConfigFile.GetInt("rpc_mode", 1);
 
             ClearingData();
 
-            if (RPCMode > 0 && RPCMode < 7) plugin.Info($"Successfully loaded mode {RPCModes[RPCMode]}");
-            else
+            if (CONFIG_MODE > 0 && CONFIG_MODE < 7)
             {
-                plugin.Warn("MODE1: The current mode is not recognized, the default value is '1'");
-                RPCMode = 1;
+                RPCMode = CONFIG_MODE;
+                plugin.Info($"Successfully loaded mode {RPCModes[RPCMode]}");
             }
+            else plugin.Warn("MODE1: The current mode is not recognized, the default value is '1'");
 
             if (RPCMode == 1) LoadRemote(plugin);
             else if (RPCMode == 2) LoadConfigModeOne(plugin);
@@ -200,7 +194,7 @@ namespace RemotePermissionCard
         {
             if (RPCRemote)
             {
-                string CardList = plugin.GetConfigString("rpc_card_list");
+                string CardList = ConfigFile.GetString("rpc_card_list", "0,1,2,3,4,5,6,7,8,9,10,11");
                 string[] Cards = CardList.Split(',');
 
                 if (Cards[0].Trim() != string.Empty)
@@ -226,7 +220,7 @@ namespace RemotePermissionCard
         public static void LoadConfigModeOne(RemotePermissionCard plugin)
         {
             LoadRemote(plugin);
-            string ConfigCCA = plugin.GetConfigString("rpc_card_access");
+            string ConfigCCA = ConfigFile.GetString("rpc_card_access", string.Empty);
 
             if (ConfigCCA != string.Empty)
             {
@@ -280,7 +274,7 @@ namespace RemotePermissionCard
         public static void LoadConfigModeTwo(RemotePermissionCard plugin)
         {
             LoadRemote(plugin);
-            string ConfigDL = plugin.GetConfigString("rpc_door_list");
+            string ConfigDL = ConfigFile.GetString("rpc_door_list", string.Empty);
 
             if (ConfigDL.Trim() != string.Empty)
             {
@@ -336,7 +330,7 @@ namespace RemotePermissionCard
         public static void LoadConfigModeTree(RemotePermissionCard plugin)
         {
             LoadRemote(plugin);
-            string ConfigDA = plugin.GetConfigString("rpc_door_access");
+            string ConfigDA = ConfigFile.GetString("rpc_door_access", string.Empty);
 
             if (ConfigDA.Trim() != string.Empty)
             {

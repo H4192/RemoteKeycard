@@ -4,7 +4,7 @@ namespace RemotePermissionCard
 {
     internal class ReloadCommand : ICommandHandler
     {
-        private RemotePermissionCard plugin;
+        private readonly RemotePermissionCard plugin;
         public ReloadCommand(RemotePermissionCard plugin) => this.plugin = plugin;
 
         public string GetCommandDescription()
