@@ -28,7 +28,7 @@ namespace RemotePermissionCard
         [ConfigOption("info")] public static bool RPCInfo = true;
         [ConfigOption("permission")] public static bool RPCPermissionMode = false;
         [ConfigOption("remote")] public static bool RPCRemote = true;
-        [ConfigOption("default_if_none")] public static bool RPCDefaultIfNone;
+        [ConfigOption("default_if_none")] public static bool RPCDefaultIfNone = false;
         public static int RPCMode;
 
         // Readonly  
