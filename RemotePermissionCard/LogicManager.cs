@@ -223,7 +223,10 @@ namespace RemotePermissionCard
                 int CardID = (int)CurrentCard;
                 if (ConfigManagers.Manager.CustomDoorAccess.ContainsKey(ev.Door.Name))
                 {
-                    if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
+                    if (ConfigManagers.Manager.DefaultCardAccess.ContainsKey(CardID))
+                    {
+                        if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
+                    }
                     else
                     {
                         if (ConfigManagers.Manager.RPCRemote)
