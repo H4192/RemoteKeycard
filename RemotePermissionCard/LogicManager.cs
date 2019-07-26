@@ -24,21 +24,21 @@ namespace RemotePermissionCard
     public class LogicManager
     {
         // Remote
-        public static void LogicOneRemote(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
+        public static void LogicOneRemote(PlayerDoorAccessEvent ev)
         {
             if (ev.Door.Permission != string.Empty && ev.Allow == false && ev.Destroy == false && ev.Player.GetInventory().Count > 0 && ev.Door.Locked == false)
             {
                 for (int z = 0; z < 12; z++)
                 {
-                    if (ConfigManagers.CardsList.Contains(z))
+                    if (ConfigManagers.Manager.CardsList.Contains(z))
                     {
-                        ItemType item = ConfigManagers.DCard[z];
+                        ItemType item = ConfigManagers.Manager.DCard[z];
                         if (ev.Player.HasItem(item))
                         {
-                            if (ConfigManagers.DefaultCardAccess[z].perms.Contains(ev.Door.Permission))
+                            if (ConfigManagers.Manager.DefaultCardAccess[z].perms.Contains(ev.Door.Permission))
                             {
                                 ev.Allow = true;
-                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE1: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{item}' thanks to permission '{ev.Door.Permission}'.");
+                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE1: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{item}' thanks to permission '{ev.Door.Permission}'.");
                                 break;
                             }
                         }
@@ -48,38 +48,38 @@ namespace RemotePermissionCard
         }
 
         // Custom Card Access +- Remote and Default
-        public static void LogicTwo(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
+        public static void LogicTwo(PlayerDoorAccessEvent ev)
         {
             if (ev.Door.Permission != string.Empty && ev.Door.Destroyed == false && ev.Door.Locked == false)
             {
                 ItemInt CurrentCard = Enum.TryParse(ev.Player.GetCurrentItem().ItemType.ToString(), out ItemInt z) ? z : ItemInt.NULL;
 
                 int CardID = (int)CurrentCard;
-                if (ConfigManagers.CustomCardAccess.ContainsKey(CardID))
+                if (ConfigManagers.Manager.CustomCardAccess.ContainsKey(CardID))
                 {
-                    if (ConfigManagers.CustomCardAccess[CardID].perms.Contains(ev.Door.Permission))
+                    if (ConfigManagers.Manager.CustomCardAccess[CardID].perms.Contains(ev.Door.Permission))
                     {
                         ev.Allow = true;
                     }
                     else
                     {
-                        if (ConfigManagers.RPCRemote)
+                        if (ConfigManagers.Manager.RPCRemote)
                         {
                             bool Really = false;
                             for (int x = 0; x < 12; z++)
                             {
-                                if (ConfigManagers.CardsList.Contains(x))
+                                if (ConfigManagers.Manager.CardsList.Contains(x))
                                 {
                                     ItemInt CurrentItem = (ItemInt)x;
                                     ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                     if (ev.Player.HasItem(ResultItem))
                                     {
-                                        if (ConfigManagers.CustomCardAccess.ContainsKey(x))
+                                        if (ConfigManagers.Manager.CustomCardAccess.ContainsKey(x))
                                         {
-                                            if (ConfigManagers.CustomCardAccess[x].perms.Contains(ev.Door.Permission))
+                                            if (ConfigManagers.Manager.CustomCardAccess[x].perms.Contains(ev.Door.Permission))
                                             {
-                                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE2: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE2: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                                 Really = true;
                                                 ev.Allow = true;
                                                 break;
@@ -93,28 +93,28 @@ namespace RemotePermissionCard
                         else ev.Allow = false;
                     }
                 }
-                else if (ConfigManagers.RPCDefaultIfNone)
+                else if (ConfigManagers.Manager.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
+                    if (ConfigManagers.Manager.DefaultCardAccess.ContainsKey(CardID))
                     {
-                        if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ev.Door.Permission)) ev.Allow = true;
+                        if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ev.Door.Permission)) ev.Allow = true;
                         else
                         {
-                            if (ConfigManagers.RPCRemote)
+                            if (ConfigManagers.Manager.RPCRemote)
                             {
                                 bool Really = false;
                                 for (int n = 0; n < 12; n++)
                                 {
-                                    if (ConfigManagers.CardsList.Contains(n))
+                                    if (ConfigManagers.Manager.CardsList.Contains(n))
                                     {
                                         ItemInt CurrentItem = (ItemInt)n;
                                         ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                         if (ev.Player.HasItem(ResultItem))
                                         {
-                                            if (ConfigManagers.DefaultCardAccess[n].perms.Contains(ev.Door.Permission))
+                                            if (ConfigManagers.Manager.DefaultCardAccess[n].perms.Contains(ev.Door.Permission))
                                             {
-                                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE2: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE2: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                                 Really = true;
                                                 ev.Allow = true;
                                                 break;
@@ -134,33 +134,33 @@ namespace RemotePermissionCard
         }
 
         // Door List +- Remote and Default
-        public static void LogicTree(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
-        {
+        public static void LogicTree(PlayerDoorAccessEvent ev)
+        { 
             if (ev.Door.Name != string.Empty && ev.Door.Destroyed == false && ev.Door.Locked == false)
             {
                 ItemInt CurrentCard = Enum.TryParse(ev.Player.GetCurrentItem().ItemType.ToString(), out ItemInt z) ? z : ItemInt.NULL;
 
                 int CardID = (int)CurrentCard;
-                if (ConfigManagers.CustomDoorList.ContainsKey(ev.Door.Name))
+                if (ConfigManagers.Manager.CustomDoorList.ContainsKey(ev.Door.Name))
                 {
-                    if (ConfigManagers.CustomDoorList[ev.Door.Name].ints.Contains(CardID)) ev.Allow = true;
+                    if (ConfigManagers.Manager.CustomDoorList[ev.Door.Name].ints.Contains(CardID)) ev.Allow = true;
                     else
                     {
-                        if (ConfigManagers.RPCRemote)
+                        if (ConfigManagers.Manager.RPCRemote)
                         {
                             bool Really = false;
                             for (int v = 0; v < 12; v++)
                             {
-                                if (ConfigManagers.CardsList.Contains(v))
+                                if (ConfigManagers.Manager.CardsList.Contains(v))
                                 {
                                     ItemInt CurrentItem = (ItemInt)v;
                                     ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                     if (ev.Player.HasItem(ResultItem))
                                     {
-                                        if (ConfigManagers.CustomDoorList[ev.Door.Name].ints.Contains(v))
+                                        if (ConfigManagers.Manager.CustomDoorList[ev.Door.Name].ints.Contains(v))
                                         {
-                                            if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE3: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                            if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE3: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                             Really = true;
                                             ev.Allow = true;
                                             break;
@@ -173,28 +173,28 @@ namespace RemotePermissionCard
                         else ev.Allow = false;
                     }
                 }
-                else if (ConfigManagers.RPCDefaultIfNone)
+                else if (ConfigManagers.Manager.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorList.ContainsKey(ev.Door.Name))
+                    if (ConfigManagers.Manager.DefaultDoorList.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(CardID)) ev.Allow = true;
+                        if (ConfigManagers.Manager.DefaultDoorList[ev.Door.Name].ints.Contains(CardID)) ev.Allow = true;
                         else
                         {
-                            if (ConfigManagers.RPCRemote)
+                            if (ConfigManagers.Manager.RPCRemote)
                             {
                                 bool Really = false;
                                 for (int k = 0; k < 12; k++)
                                 {
-                                    if (ConfigManagers.CardsList.Contains(k))
+                                    if (ConfigManagers.Manager.CardsList.Contains(k))
                                     {
                                         ItemInt CurrentItem = (ItemInt)k;
                                         ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                         if (ev.Player.HasItem(ResultItem))
                                         {
-                                            if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(k))
+                                            if (ConfigManagers.Manager.DefaultDoorList[ev.Door.Name].ints.Contains(k))
                                             {
-                                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE3: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE3: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                                 Really = true;
                                                 ev.Allow = true;
                                                 break;
@@ -214,33 +214,33 @@ namespace RemotePermissionCard
         }
          
         // Door Access +- Remote and Default
-        public static void LogicFour(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
+        public static void LogicFour(PlayerDoorAccessEvent ev)
         {
             if (ev.Door.Name != string.Empty && ev.Door.Locked == false && ev.Door.Destroyed == false)
             {
                 ItemInt CurrentCard = Enum.TryParse(ev.Player.GetCurrentItem().ItemType.ToString(), out ItemInt z) ? z : ItemInt.NULL;
 
                 int CardID = (int)CurrentCard;
-                if (ConfigManagers.CustomDoorAccess.ContainsKey(ev.Door.Name))
+                if (ConfigManagers.Manager.CustomDoorAccess.ContainsKey(ev.Door.Name))
                 {
-                    if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
+                    if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
                     else
                     {
-                        if (ConfigManagers.RPCRemote)
+                        if (ConfigManagers.Manager.RPCRemote)
                         {
                             bool Really = false;
                             for (int b = 0; b < 12; b++)
                             {
-                                if (ConfigManagers.CardsList.Contains(b))
+                                if (ConfigManagers.Manager.CardsList.Contains(b))
                                 {
                                     ItemInt CurrentItem = (ItemInt)b;
                                     ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                     if (ev.Player.HasItem(ResultItem))
                                     {
-                                        if (ConfigManagers.DefaultCardAccess[b].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name]))
+                                        if (ConfigManagers.Manager.DefaultCardAccess[b].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name]))
                                         {
-                                            if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE4: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                            if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE4: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                             Really = true;
                                             ev.Allow = true;
                                             break;
@@ -253,31 +253,31 @@ namespace RemotePermissionCard
                         else ev.Allow = false;
                     }
                 }
-                else if (ConfigManagers.RPCDefaultIfNone)
+                else if (ConfigManagers.Manager.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
+                    if (ConfigManagers.Manager.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
+                        if (ConfigManagers.Manager.DefaultCardAccess.ContainsKey(CardID))
                         {
-                            if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                            if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
                         }
                         else
                         {
-                            if (ConfigManagers.RPCRemote)
+                            if (ConfigManagers.Manager.RPCRemote)
                             {
                                 bool Really = false;
                                 for (int f = 0; f < 12; f++)
                                 {
-                                    if (ConfigManagers.CardsList.Contains(f))
+                                    if (ConfigManagers.Manager.CardsList.Contains(f))
                                     {
                                         ItemInt CurrentItem = (ItemInt)f;
                                         ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
 
                                         if (ev.Player.HasItem(ResultItem))
                                         {
-                                            if (ConfigManagers.DefaultCardAccess[f].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                            if (ConfigManagers.Manager.DefaultCardAccess[f].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name]))
                                             {
-                                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE4: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE4: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                                 Really = true;
                                                 ev.Allow = true;
                                                 break;
@@ -297,19 +297,19 @@ namespace RemotePermissionCard
         }
 
         // Door List + Door Access +- Remote and Default
-        public static void LogicFive(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
+        public static void LogicFive(PlayerDoorAccessEvent ev)
         {
             if (ev.Door.Name != string.Empty && ev.Door.Locked == false && ev.Door.Destroyed == false)
             {
                 ItemInt CurrentCard = Enum.TryParse(ev.Player.GetCurrentItem().ItemType.ToString(), out ItemInt z) ? z : ItemInt.NULL;
 
                 int CardID = (int)CurrentCard;
-                if (ConfigManagers.CustomDoorList.ContainsKey(ev.Door.Name) && ConfigManagers.CustomDoorAccess.ContainsKey(ev.Door.Name))
+                if (ConfigManagers.Manager.CustomDoorList.ContainsKey(ev.Door.Name) && ConfigManagers.Manager.CustomDoorAccess.ContainsKey(ev.Door.Name))
                 {
-                    if (ConfigManagers.CustomDoorList[ev.Door.Name].ints.Contains(CardID) && ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
+                    if (ConfigManagers.Manager.CustomDoorList[ev.Door.Name].ints.Contains(CardID) && ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
                     else
                     {
-                        if (ConfigManagers.RPCRemote)
+                        if (ConfigManagers.Manager.RPCRemote)
                         {
                             bool Really = false;
                             for (int g = 0; g < 12; g++)
@@ -318,9 +318,9 @@ namespace RemotePermissionCard
                                 ItemType ResultItem = (ItemType)Enum.Parse(typeof(ItemType), CurrentItem.ToString());
                                 if (ev.Player.HasItem(ResultItem))
                                 {
-                                    if (ConfigManagers.CustomDoorList[ev.Door.Name].ints.Contains(g) && ConfigManagers.DefaultCardAccess[g].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name]))
+                                    if (ConfigManagers.Manager.CustomDoorList[ev.Door.Name].ints.Contains(g) && ConfigManagers.Manager.DefaultCardAccess[g].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name]))
                                     {
-                                        if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                        if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                         Really = true;
                                         ev.Allow = true;
                                         break;
@@ -332,21 +332,21 @@ namespace RemotePermissionCard
                         else ev.Allow = false;
                     }
                 }
-                else if (ConfigManagers.RPCDefaultIfNone)
+                else if (ConfigManagers.Manager.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorList.ContainsKey(ev.Door.Name) && ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
+                    if (ConfigManagers.Manager.DefaultDoorList.ContainsKey(ev.Door.Name) && ConfigManagers.Manager.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(CardID) && ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                        if (ConfigManagers.Manager.DefaultDoorList[ev.Door.Name].ints.Contains(CardID) && ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
                         else
                         {
-                            if (ConfigManagers.RPCRemote)
+                            if (ConfigManagers.Manager.RPCRemote)
                             {
                                 bool Really = false;
                                 for (int h = 0; h < 12; h++)
                                 {
-                                    if (ConfigManagers.DefaultDoorList[ev.Door.Name].ints.Contains(h) && ConfigManagers.DefaultCardAccess[h].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                    if (ConfigManagers.Manager.DefaultDoorList[ev.Door.Name].ints.Contains(h) && ConfigManagers.Manager.DefaultCardAccess[h].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name]))
                                     {
-                                        if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ConfigManagers.DCard[h]}' thanks to permission '{ev.Door.Permission}'.");
+                                        if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ConfigManagers.Manager.DCard[h]}' thanks to permission '{ev.Door.Permission}'.");
                                         Really = true;
                                         ev.Allow = true;
                                         break;
@@ -364,19 +364,19 @@ namespace RemotePermissionCard
         }
 
         // Custom Card Access + Door Access +- Remote and Default
-        public static void LogicSix(RemotePermissionCard plugin, PlayerDoorAccessEvent ev)
+        public static void LogicSix(PlayerDoorAccessEvent ev)
         {
             if (ev.Door.Name != string.Empty && ev.Door.Locked == false && ev.Door.Destroyed == false)
             {
                 ItemInt CurrentCard = Enum.TryParse(ev.Player.GetCurrentItem().ItemType.ToString(), out ItemInt z) ? z : ItemInt.NULL;
 
                 int CardID = (int)CurrentCard;
-                if (ConfigManagers.CustomCardAccess.ContainsKey(CardID) && ConfigManagers.CustomDoorAccess.ContainsKey(ev.Door.Name))
+                if (ConfigManagers.Manager.CustomCardAccess.ContainsKey(CardID) && ConfigManagers.Manager.CustomDoorAccess.ContainsKey(ev.Door.Name))
                 {
-                    if (ConfigManagers.CustomCardAccess[CardID].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
+                    if (ConfigManagers.Manager.CustomCardAccess[CardID].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name])) ev.Allow = true;
                     else
                     {
-                        if (ConfigManagers.RPCRemote)
+                        if (ConfigManagers.Manager.RPCRemote)
                         {
                             bool Really = false;
                             for (int j = 0; j < 12; j++)
@@ -386,11 +386,11 @@ namespace RemotePermissionCard
 
                                 if (ev.Player.HasItem(ResultItem))
                                 {
-                                    if (ConfigManagers.CustomCardAccess.ContainsKey(j))
+                                    if (ConfigManagers.Manager.CustomCardAccess.ContainsKey(j))
                                     {
-                                        if (ConfigManagers.CustomCardAccess[j].perms.Contains(ConfigManagers.CustomDoorAccess[ev.Door.Name]))
+                                        if (ConfigManagers.Manager.CustomCardAccess[j].perms.Contains(ConfigManagers.Manager.CustomDoorAccess[ev.Door.Name]))
                                         {
-                                            if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                            if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                             Really = true;
                                             ev.Allow = true;
                                             break;
@@ -403,16 +403,16 @@ namespace RemotePermissionCard
                         else ev.Allow = false;
                     }
                 }
-                else if (ConfigManagers.RPCDefaultIfNone)
+                else if (ConfigManagers.Manager.RPCDefaultIfNone)
                 {
-                    if (ConfigManagers.DefaultDoorAccess.ContainsKey(ev.Door.Name))
+                    if (ConfigManagers.Manager.DefaultDoorAccess.ContainsKey(ev.Door.Name))
                     {
-                        if (ConfigManagers.DefaultCardAccess.ContainsKey(CardID))
+                        if (ConfigManagers.Manager.DefaultCardAccess.ContainsKey(CardID))
                         {
-                            if (ConfigManagers.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
+                            if (ConfigManagers.Manager.DefaultCardAccess[CardID].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name])) ev.Allow = true;
                             else
                             {
-                                if (ConfigManagers.RPCRemote)
+                                if (ConfigManagers.Manager.RPCRemote)
                                 {
                                     bool Really = false;
                                     for (int t = 0; t < 12; t++)
@@ -422,9 +422,9 @@ namespace RemotePermissionCard
 
                                         if (ev.Player.HasItem(ResultItem))
                                         {
-                                            if (ConfigManagers.DefaultCardAccess[t].perms.Contains(ConfigManagers.DefaultDoorAccess[ev.Door.Name]))
+                                            if (ConfigManagers.Manager.DefaultCardAccess[t].perms.Contains(ConfigManagers.Manager.DefaultDoorAccess[ev.Door.Name]))
                                             {
-                                                if (ConfigManagers.RPCInfo) plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
+                                                if (ConfigManagers.Manager.RPCInfo) RemotePermissionCard.plugin.Info($"INFO_MODE5: Player '{ev.Player.Name}' open the door '{ev.Door.Name}' with the help '{ResultItem}' thanks to permission '{ev.Door.Permission}'.");
                                                 Really = true;
                                                 ev.Allow = true;
                                                 break;

@@ -5,34 +5,30 @@ using System.Linq;
 
 namespace RemotePermissionCard
 {
-    public struct CList
-    {
-        public List<int> ints;
-        public CList(List<int> ints)
-        {
-            this.ints = ints;
-        }
-    }
-
-    public struct PList
-    {
-        public List<string> perms;
-        public PList(List<string> perms)
-        {
-            this.perms = perms;
-        }
-    }
-
     public class ConfigManagers
     {
-        [ConfigOption("info")] public static bool RPCInfo = true;
-        [ConfigOption("permission")] public static bool RPCPermissionMode = false;
-        [ConfigOption("remote")] public static bool RPCRemote = true;
-        [ConfigOption("default_if_none")] public static bool RPCDefaultIfNone = false;
-        public static int RPCMode;
+        public bool RPCInfo { get; private set; }
+        public bool RPCPermissionMode { get; private set; }
+        public bool RPCRemote { get; private set; }
+        public bool RPCDefaultIfNone { get; private set; }
+
+        public int RPCMode;
+
+        private static ConfigManagers singleton;
+        public static ConfigManagers Manager
+        {
+            get
+            {
+                if (singleton == null)
+                {
+                    singleton = new ConfigManagers();
+                }
+                return singleton;
+            }
+        }
 
         // Readonly  
-        private static readonly List<string> DoorPerms = new List<string>()
+        private readonly List<string> DoorPerms = new List<string>()
         {
             "CONT_LVL_1",
             "CONT_LVL_2",
@@ -44,7 +40,7 @@ namespace RemotePermissionCard
             "EXIT_ACC",
             "INCOM_ACC"
         };
-        private static readonly List<string> NameDoors = new List<string>()
+        private readonly List<string> NameDoors = new List<string>()
         {
             "HCZ_ARMORY",
             "914",
@@ -76,7 +72,7 @@ namespace RemotePermissionCard
             "INTERCOM",
             "079_FIRST"
         };
-        private static readonly List<string> RPCModes = new List<string>()
+        private readonly List<string> RPCModes = new List<string>()
         {
             { "Remote Door Controls" },
             { "Custom Access Card" },
@@ -85,7 +81,8 @@ namespace RemotePermissionCard
             { "Door List + Door Access" },
             { "Custom Access Card + Door Access" }
         };
-        public static readonly Dictionary<int, PList> DefaultCardAccess = new Dictionary<int, PList>()
+
+        internal readonly Dictionary<int, PList> DefaultCardAccess = new Dictionary<int, PList>()
         {
             { 0,    new PList(new List<string>(new string[] { "CONT_LVL_1", "CONT_LVL_2", "CONT_LVL_3", "ARMORY_LVL_1", "ARMORY_LVL_2", "ARMORY_LVL_3", "CHCKPOINT_ACC", "EXIT_ACC", "INCOM_ACC" }))    },
             { 1,    new PList(new List<string>(new string[] { "CONT_LVL_1", "CONT_LVL_2", "ARMORY_LVL_1", "ARMORY_LVL_2", "ARMORY_LVL_3", "CHCKPOINT_ACC", "EXIT_ACC", "INCOM_ACC" }))                  },
@@ -100,7 +97,7 @@ namespace RemotePermissionCard
             { 10,   new PList(new List<string>(new string[] { "CONT_LVL_1", "CONT_LVL_2" }))                                                                                                            },
             { 11,   new PList(new List<string>(new string[] { "CONT_LVL_1" }))                                                                                                                          },
         };
-        public static readonly Dictionary<string, string> DefaultDoorAccess = new Dictionary<string, string>()
+        internal readonly Dictionary<string, string> DefaultDoorAccess = new Dictionary<string, string>()
         {
             { "HCZ_ARMORY",                     "ARMORY_LVL_1"  },
             { "106_SECONDARY",                  "CONT_LVL_3"    },
@@ -123,7 +120,7 @@ namespace RemotePermissionCard
             { "096",                            "CONT_LVL_2"    },
             { "INTERCOM",                       "INCOM_ACC"     }
         };
-        public static readonly Dictionary<string, CList> DefaultDoorList = new Dictionary<string, CList>()
+        internal readonly Dictionary<string, CList> DefaultDoorList = new Dictionary<string, CList>()
         {
             { "HCZ_ARMORY",                     new CList(new List<int>(new int[] { 0,1,3,4,6,7 }))                 },
             { "106_SECONDARY",                  new CList(new List<int>(new int[] { 0,2,5 }))                       },
@@ -146,7 +143,7 @@ namespace RemotePermissionCard
             { "096",                            new CList(new List<int>(new int[] { 0,1,2,3,4,5,6,9,10 }))          },
             { "INTERCOM",                       new CList(new List<int>(new int[] { 0,1,2,3,5 }))                   }
         };
-        public static readonly List<ItemType> DCard = new List<ItemType>()
+        internal readonly List<ItemType> DCard = new List<ItemType>()
         {
             {  ItemType.O5_LEVEL_KEYCARD                },
             {  ItemType.CHAOS_INSURGENCY_DEVICE         },
@@ -163,34 +160,39 @@ namespace RemotePermissionCard
         };
 
         // Customs
-        public static List<int> CardsList = new List<int>();
-        public static Dictionary<int, PList> CustomCardAccess = new Dictionary<int, PList>();
-        public static Dictionary<string, string> CustomDoorAccess = new Dictionary<string, string>();
-        public static Dictionary<string, CList> CustomDoorList = new Dictionary<string, CList>();
+        internal readonly List<int> CardsList = new List<int>();
+        internal readonly Dictionary<int, PList> CustomCardAccess = new Dictionary<int, PList>();
+        internal readonly Dictionary<string, string> CustomDoorAccess = new Dictionary<string, string>();
+        internal readonly Dictionary<string, CList> CustomDoorList = new Dictionary<string, CList>();
 
-        public static void ReloadConfig(RemotePermissionCard plugin)
+        internal void ReloadConfig()
         {
             int CONFIG_MODE = ConfigFile.GetInt("rpc_mode", 1);
+
+            RPCInfo = ConfigFile.GetBool("rpc_info", true);
+            RPCPermissionMode = ConfigFile.GetBool("rpc_permission", false);
+            RPCRemote = ConfigFile.GetBool("rpc_remote", true);
+            RPCDefaultIfNone = ConfigFile.GetBool("rpc_default_if_none", false);
 
             ClearingData();
 
             if (CONFIG_MODE > 0 && CONFIG_MODE < 7)
             {
                 RPCMode = CONFIG_MODE;
-                plugin.Info($"Successfully loaded mode {RPCModes[RPCMode]}");
+                RemotePermissionCard.plugin.Info($"Successfully loaded mode {RPCModes[RPCMode]}");
             }
-            else plugin.Warn("MODE1: The current mode is not recognized, the default value is '1'");
+            else RemotePermissionCard.plugin.Warn("MODE1: The current mode is not recognized, the default value is '1'");
 
-            if (RPCMode == 1) LoadRemote(plugin);
-            else if (RPCMode == 2) LoadConfigModeOne(plugin);
-            else if (RPCMode == 3) LoadConfigModeTwo(plugin);
-            else if (RPCMode == 4) LoadConfigModeTree(plugin);
-            else if (RPCMode == 5) LoadConfigModeFour(plugin);
-            else if (RPCMode == 6) LoadConfigModeFive(plugin);
-            else plugin.Warn("MODE2: Error recognizing the current work mode, contact the developer");
+            if (RPCMode == 1) LoadRemote();
+            else if (RPCMode == 2) LoadConfigModeOne();
+            else if (RPCMode == 3) LoadConfigModeTwo();
+            else if (RPCMode == 4) LoadConfigModeTree();
+            else if (RPCMode == 5) LoadConfigModeFour();
+            else if (RPCMode == 6) LoadConfigModeFive();
+            else RemotePermissionCard.plugin.Warn("MODE2: Error recognizing the current work mode, contact the developer");
         }
 
-        public static void LoadRemote(RemotePermissionCard plugin)
+        internal void LoadRemote()
         {
             if (RPCRemote)
             {
@@ -206,20 +208,20 @@ namespace RemotePermissionCard
                         if (CardID >= 0 && CardID <= 11)
                         {
                             if (!CardsList.Contains(CardID)) CardsList.Add(CardID);
-                            else plugin.Warn($"REMOTE4: Duplicate value '{CardID}' in CardsList");
+                            else RemotePermissionCard.plugin.Warn($"REMOTE4: Duplicate value '{CardID}' in CardsList");
                         }
-                        else plugin.Warn($"REMOTE3: Incorrect value '{Cards[x]}'");
+                        else RemotePermissionCard.plugin.Warn($"REMOTE3: Incorrect value '{Cards[x]}'");
                     }
                 }
-                else plugin.Warn("REMOTE2: Incorrect format");
+                else RemotePermissionCard.plugin.Warn("REMOTE2: Incorrect format");
             }
-            else if (RPCMode == 1) plugin.Warn("REMOTE1: Value 'rpc_remote' installed on 'false'. I don't know why he's working now ¯\\_(ツ)_/¯");
+            else if (RPCMode == 1) RemotePermissionCard.plugin.Warn("REMOTE1: Value 'rpc_remote' installed on 'false'. I don't know why he's working now ¯\\_(ツ)_/¯");
         }
 
         // Custom Access Card
-        public static void LoadConfigModeOne(RemotePermissionCard plugin)
+        internal void LoadConfigModeOne()
         {
-            LoadRemote(plugin);
+            LoadRemote();
             string ConfigCCA = ConfigFile.GetString("rpc_card_access", string.Empty);
 
             if (ConfigCCA != string.Empty)
@@ -251,29 +253,29 @@ namespace RemotePermissionCard
                                             else
                                             {
                                                 if (!CustomCardAccess[CardID].perms.Contains(Perm)) CustomCardAccess[CardID].perms.Add(Perm);
-                                                else plugin.Warn($"CA7: Duplicate permission '{Perm}' in CardID '{CardID}'");
+                                                else RemotePermissionCard.plugin.Warn($"CA7: Duplicate permission '{Perm}' in CardID '{CardID}'");
                                             }
                                         }
-                                        else plugin.Warn($"CA6: Incorrect value '{Card.Trim()}'");
+                                        else RemotePermissionCard.plugin.Warn($"CA6: Incorrect value '{Card.Trim()}'");
                                     }
                                 }
-                                else plugin.Warn($"CA5: CList value not set in permission '{Perm}'");
+                                else RemotePermissionCard.plugin.Warn($"CA5: CList value not set in permission '{Perm}'");
                             }
-                            else plugin.Warn($"CA4: Wrong permission '{Perm}'");
+                            else RemotePermissionCard.plugin.Warn($"CA4: Wrong permission '{Perm}'");
                         }
-                        else plugin.Warn("CA3: Permission value not set");
+                        else RemotePermissionCard.plugin.Warn("CA3: Permission value not set");
 
                     }
-                    else plugin.Warn($"CA2: Incorrect format in the line '{CardAndPerm}'");
+                    else RemotePermissionCard.plugin.Warn($"CA2: Incorrect format in the line '{CardAndPerm}'");
                 }
             }
-            else plugin.Warn("CA1: Incorrect format");
+            else RemotePermissionCard.plugin.Warn("CA1: Incorrect format");
         }
 
         // Door List
-        public static void LoadConfigModeTwo(RemotePermissionCard plugin)
+        internal void LoadConfigModeTwo()
         {
-            LoadRemote(plugin);
+            LoadRemote();
             string ConfigDL = ConfigFile.GetString("rpc_door_list", string.Empty);
 
             if (ConfigDL.Trim() != string.Empty)
@@ -307,29 +309,29 @@ namespace RemotePermissionCard
                                                 else
                                                 {
                                                     if (!CustomDoorList[DoorName].ints.Contains(CardID)) CustomDoorList[DoorName].ints.Add(CardID);
-                                                    else plugin.Warn($"DL7: Duplicate CardID '{CardID}' in DoorName '{DoorName}'");
+                                                    else RemotePermissionCard.plugin.Warn($"DL7: Duplicate CardID '{CardID}' in DoorName '{DoorName}'");
                                                 }
                                             }
                                         }
                                     }
-                                    else plugin.Warn($"DL6: Incorrect format CList in DoorName '{DoorName}'");
+                                    else RemotePermissionCard.plugin.Warn($"DL6: Incorrect format CList in DoorName '{DoorName}'");
                                 }
-                                else plugin.Warn($"DL5: Incorrect name of door '{DoorName}'");
+                                else RemotePermissionCard.plugin.Warn($"DL5: Incorrect name of door '{DoorName}'");
                             }
-                            else plugin.Warn("DL4: DoorName value not set");
+                            else RemotePermissionCard.plugin.Warn("DL4: DoorName value not set");
                         }
-                        else plugin.Warn($"DL3: Incorrect format in the line '{DoorAndCards}'");
+                        else RemotePermissionCard.plugin.Warn($"DL3: Incorrect format in the line '{DoorAndCards}'");
                     }
                 }
-                else plugin.Warn("DL2: Incorrect format");
+                else RemotePermissionCard.plugin.Warn("DL2: Incorrect format");
             }
-            else plugin.Warn("DL1: Incorrect format");
+            else RemotePermissionCard.plugin.Warn("DL1: Incorrect format");
         }
 
         // Door Access
-        public static void LoadConfigModeTree(RemotePermissionCard plugin)
+        internal void LoadConfigModeTree()
         {
-            LoadRemote(plugin);
+            LoadRemote();
             string ConfigDA = ConfigFile.GetString("rpc_door_access", string.Empty);
 
             if (ConfigDA.Trim() != string.Empty)
@@ -356,48 +358,66 @@ namespace RemotePermissionCard
                                         if (DoorPerms.Contains(Perm))
                                         {
                                             if (!CustomDoorAccess.ContainsKey(DoorName)) CustomDoorAccess.Add(DoorName, Perm);
-                                            else plugin.Warn($"DA8: Duplicate permission '{Perm}' in DoorName '{DoorName}'");
+                                            else RemotePermissionCard.plugin.Warn($"DA8: Duplicate permission '{Perm}' in DoorName '{DoorName}'");
                                         }
-                                        else plugin.Warn($"DA7: Wrong permission '{Perm}'");
+                                        else RemotePermissionCard.plugin.Warn($"DA7: Wrong permission '{Perm}'");
                                     }
-                                    else plugin.Warn($"DA6: Permission value not set in door '{DoorName}'");
+                                    else RemotePermissionCard.plugin.Warn($"DA6: Permission value not set in door '{DoorName}'");
                                 }
-                                else plugin.Warn($"DA5: Incorrect name of door '{DoorName}'");
+                                else RemotePermissionCard.plugin.Warn($"DA5: Incorrect name of door '{DoorName}'");
                             }
-                            else plugin.Warn("DA4: DoorName value not set");
+                            else RemotePermissionCard.plugin.Warn("DA4: DoorName value not set");
                         }
-                        else plugin.Warn($"DA3: Incorrect format in the line '{DoorAndPerms}'");
+                        else RemotePermissionCard.plugin.Warn($"DA3: Incorrect format in the line '{DoorAndPerms}'");
                     }
                 }
-                else plugin.Warn("DA2: Incorrect format");
+                else RemotePermissionCard.plugin.Warn("DA2: Incorrect format");
             }
-            else plugin.Warn("DA1: Incorrect format");
+            else RemotePermissionCard.plugin.Warn("DA1: Incorrect format");
         }
 
         // Door List + Door Access
-        public static void LoadConfigModeFour(RemotePermissionCard plugin)
+        internal void LoadConfigModeFour()
         {
-            LoadRemote(plugin);
-            LoadConfigModeTwo(plugin);
-            LoadConfigModeFour(plugin);
+            LoadRemote();
+            LoadConfigModeTwo();
+            LoadConfigModeFour();
             // ¯\_(ツ)_/¯
         }
 
         // Custom Access Card + Door Access
-        public static void LoadConfigModeFive(RemotePermissionCard plugin)
+        internal void LoadConfigModeFive()
         {
-            LoadRemote(plugin);
-            LoadConfigModeOne(plugin);
-            LoadConfigModeTree(plugin);
+            LoadRemote();
+            LoadConfigModeOne();
+            LoadConfigModeTree();
             // ¯\_(ツ)_/¯ x2
         }
 
-        public static void ClearingData()
+        internal void ClearingData()
         {
             CardsList.Clear();
             CustomCardAccess.Clear();
             CustomDoorAccess.Clear();
             CustomDoorList.Clear();
+        }
+
+        internal class PList
+        {
+            public List<string> perms;
+            public PList(List<string> perms)
+            {
+                this.perms = perms;
+            }
+        }
+
+        internal class CList
+        {
+            public List<int> ints;
+            public CList(List<int> ints)
+            {
+                this.ints = ints;
+            }
         }
     }
 }

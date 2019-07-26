@@ -4,8 +4,6 @@ namespace RemotePermissionCard
 {
     internal class ReloadCommand : ICommandHandler
     {
-        private readonly RemotePermissionCard plugin;
-        public ReloadCommand(RemotePermissionCard plugin) => this.plugin = plugin;
 
         public string GetCommandDescription()
         {
@@ -19,7 +17,7 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            if (ConfigManagers.RPCPermissionMode)
+            if (ConfigManagers.Manager.RPCPermissionMode)
             {
                 if (sender is Smod2.API.Player p)
                 {
@@ -29,7 +27,7 @@ namespace RemotePermissionCard
                     }
                 }
             }
-            ConfigManagers.ReloadConfig(plugin);
+            ConfigManagers.Manager.ReloadConfig();
             return new string[] { "The configuration was successfully reloaded." };
         }
     }

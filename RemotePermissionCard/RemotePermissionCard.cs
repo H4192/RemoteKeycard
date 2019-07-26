@@ -9,22 +9,24 @@ namespace RemotePermissionCard
         name = "RemotePermissionCard",
         id = "irebbok.remote.permission.card",
         description = "Door Manager",
-        version = "1.3.0",
-        configPrefix = "rpc",
+        version = "1.3.1",
         SmodMajor = 3,
         SmodMinor = 5,
         SmodRevision = 0)]
 
     public class RemotePermissionCard : Plugin
     {
+        internal static RemotePermissionCard plugin { get; private set; }
+
         public override void OnDisable()
         {
-            ConfigManagers.ClearingData();
+            ConfigManagers.Manager.ClearingData();
         }
 
         public override void OnEnable()
         {
-            ConfigManagers.ReloadConfig(this);
+            plugin = this;
+            ConfigManagers.Manager.ReloadConfig();
             this.Info($"{this.Details.name} ({this.Details.version}) successfully launched.");
         }
 
@@ -37,8 +39,8 @@ namespace RemotePermissionCard
 
         private void RegisterCommands()
         {
-            this.AddCommands(new string[] { "rpc_disable" }, new DisableCommand(this));
-            this.AddCommands(new string[] { "rpc_reload" }, new ReloadCommand(this));
+            this.AddCommands(new string[] { "rpc_disable" }, new DisableCommand());
+            this.AddCommands(new string[] { "rpc_reload" }, new ReloadCommand());
 
             this.AddCommands(new string[] { "rpc_list_card" }, new CardsListCommand());
             this.AddCommands(new string[] { "rpc_list_door" }, new DoorListCommand());
@@ -65,8 +67,8 @@ namespace RemotePermissionCard
 
         private void RegisterEvents()
         {
-            this.AddEventHandler(typeof(IEventHandlerDoorAccess), new EventHandlers(this), Smod2.Events.Priority.High);
-            this.AddEventHandler(typeof(IEventHandlerWaitingForPlayers), new EventHandlers(this), Smod2.Events.Priority.Normal);
+            this.AddEventHandler(typeof(IEventHandlerDoorAccess), new EventHandlers(), Smod2.Events.Priority.High);
+            this.AddEventHandler(typeof(IEventHandlerWaitingForPlayers), new EventHandlers(), Smod2.Events.Priority.Normal);
         }
     }
 }

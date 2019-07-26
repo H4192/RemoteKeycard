@@ -17,7 +17,7 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            List<int> list = ConfigManagers.CardsList;
+            List<int> list = ConfigManagers.Manager.CardsList;
 
             if (list.Count > 0)
             {
@@ -41,12 +41,12 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            Dictionary<string, CList> list = ConfigManagers.CustomDoorList;
+            Dictionary<string, ConfigManagers.CList> list = ConfigManagers.Manager.CustomDoorList;
 
             if (list.Count > 0)
             {
                 string result = "";
-                foreach (KeyValuePair<string, CList> node in list)
+                foreach (KeyValuePair<string, ConfigManagers.CList> node in list)
                 {
                     result += $"\nDoor: {node.Key} = {string.Join(",", node.Value.ints.ToArray())}";
                 }
@@ -70,7 +70,7 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            Dictionary<string, string> list = ConfigManagers.CustomDoorAccess;
+            Dictionary<string, string> list = ConfigManagers.Manager.CustomDoorAccess;
 
             if (list.Count > 0)
             {
@@ -99,12 +99,12 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            Dictionary<int, PList> list = ConfigManagers.CustomCardAccess;
+            Dictionary<int, ConfigManagers.PList> list = ConfigManagers.Manager.CustomCardAccess;
 
             if (list.Count > 0)
             {
                 string result = "";
-                foreach (KeyValuePair<int, PList> node in list)
+                foreach (KeyValuePair<int, ConfigManagers.PList> node in list)
                 {
                     result += $"\nCardID: {node.Key} = {string.Join(",", node.Value.perms.ToArray())}";
                 }

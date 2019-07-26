@@ -5,9 +5,6 @@ namespace RemotePermissionCard
 {
     internal class DisableCommand : ICommandHandler
     {
-        private readonly RemotePermissionCard plugin;
-        public DisableCommand(RemotePermissionCard plugin) => this.plugin = plugin;
-
         public string GetCommandDescription()
         {
             return "Disabling this plugin";
@@ -20,7 +17,7 @@ namespace RemotePermissionCard
 
         public string[] OnCall(ICommandSender sender, string[] args)
         {
-            if (ConfigManagers.RPCPermissionMode)
+            if (ConfigManagers.Manager.RPCPermissionMode)
             {
                 if (sender is Smod2.API.Player p)
                 {
@@ -31,7 +28,7 @@ namespace RemotePermissionCard
                 }
             }
 
-            PluginManager.Manager.DisablePlugin(plugin);
+            PluginManager.Manager.DisablePlugin(RemotePermissionCard.plugin);
             return new string[] { "RemotePermissionCard disable." };
         }
     }
