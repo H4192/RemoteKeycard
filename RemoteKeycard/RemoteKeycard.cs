@@ -1,51 +1,38 @@
-﻿using Smod2;
-using Smod2.Attributes;
-using Smod2.EventHandlers;
+﻿using EXILED;
 
-namespace RemotePermissionCard
+namespace RemoteKeycard
 {
-    [PluginDetails(
-        author = "iRebbok",
-        name = "RemotePermissionCard",
-        id = "irebbok.remote.permission.card",
-        description = "Door Manager",
-        version = "1.3.1",
-        SmodMajor = 3,
-        SmodMinor = 5,
-        SmodRevision = 0)]
-
     public class RemoteKeycard : Plugin
     {
         internal static RemoteKeycard plugin { get; private set; }
 
+        public override string getName => "RemoteKeycard";
+
+        public const string Version = "V1.0.0";
         public override void OnDisable()
         {
-            ConfigManagers.Manager.ClearingData();
+            if (!enabled)
+            {
+                return;
+            }
+            Events.DoorInteractEvent -= LocalEvents.OnDoorAccess;
         }
-
+        private EventHandlers LocalEvents;
+        private bool enabled = false;
         public override void OnEnable()
         {
+            enabled = Config.GetBool("rkc_enable", true);
+            if (!enabled)
+            {
+                return;
+            }
             plugin = this;
+
+            Plugin.Info("Registering events...");
+            LocalEvents = new EventHandlers();
+            Events.DoorInteractEvent += LocalEvents.OnDoorAccess;
+
             ConfigManagers.Manager.ReloadConfig();
-            this.Info($"{this.Details.name} ({this.Details.version}) successfully launched.");
-        }
-
-        public override void Register()
-        {
-            RegisterCommands();
-            // RegisterConfigs();
-            RegisterEvents();
-        }
-
-        private void RegisterCommands()
-        {
-            this.AddCommands(new string[] { "rpc_disable" }, new DisableCommand());
-            this.AddCommands(new string[] { "rpc_reload" }, new ReloadCommand());
-
-            this.AddCommands(new string[] { "rpc_list_card" }, new CardsListCommand());
-            this.AddCommands(new string[] { "rpc_list_door" }, new DoorListCommand());
-            this.AddCommands(new string[] { "rpc_access_door" }, new DoorAccessCommand());
-            this.AddCommands(new string[] { "rpc_access_card" }, new CardAccessCommand());
         }
 
         /*
@@ -64,11 +51,9 @@ namespace RemotePermissionCard
             this.AddConfig(new Smod2.Config.ConfigSetting("rpc_debug", false, true, "Debug this plugin"));
         }
         */
-
-        private void RegisterEvents()
+        public override void OnReload()
         {
-            this.AddEventHandler(typeof(IEventHandlerDoorAccess), new EventHandlers(), Smod2.Events.Priority.High);
-            this.AddEventHandler(typeof(IEventHandlerWaitingForPlayers), new EventHandlers(), Smod2.Events.Priority.Normal);
+            // Un-used, since I'm not doing the commands.
         }
     }
 }
