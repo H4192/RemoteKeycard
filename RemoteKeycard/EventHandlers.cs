@@ -1,5 +1,4 @@
 ﻿using EXILED;
-using System;
 
 namespace RemoteKeycard
 {
